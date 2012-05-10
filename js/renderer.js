@@ -92,7 +92,8 @@ Wolf.Renderer = (function() {
         sprites = [];
         visibleSprites = [];
     }
-    
+    FWREND = 0;
+    FWSIGN = 1;
     function processTrace(viewport, tracePoint) {
         var x = tracePoint.x,
             y = tracePoint.y,
@@ -106,7 +107,15 @@ Wolf.Renderer = (function() {
             h, w, offset;
 
         // correct for fisheye
-        dist = dist * cos(FINE2RAD(tracePoint.angle - viewport.angle));
+        //dist = dist *   cos((FWREND = (FWREND + 1) % 100 ) * FINE2RAD(tracePoint.angle - viewport.angle));
+          FWREND += FWSIGN*0.001;
+        if (FWREND > Math.PI) {
+          FWSIGN = -1;
+        }
+        else if (FWREND < 0) {
+            FWSIGN = 1;
+          }
+        dist = dist * cos(FWREND*FINE2RAD(tracePoint.angle - viewport.angle));
         
         w = WALL_TEXTURE_WIDTH * SLICE_WIDTH;
         h = (VIEW_DIST / dist * TILEGLOBAL) >> 0;
@@ -324,7 +333,7 @@ Wolf.Renderer = (function() {
             divStyle.width = size + "px";
             divStyle.height = size + "px";
             
-            divStyle.left = (XRES / 2 - size / 2 - tan(angle) * VIEW_DIST) + "px";
+            divStyle.left = (XRES / 2 - size / 2 - tan(angle*FWREND) * VIEW_DIST) + "px";
             
             divStyle.top = (YRES / 2 - size / 2) + "px";
 
